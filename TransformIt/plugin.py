@@ -82,11 +82,19 @@ class TransformItPlugin(pcbnew.ActionPlugin):
 
         for i in range(poly.OutlineCount()):
             outline: pcbnew.SHAPE_LINE_CHAIN = poly.Outline(i)
-            self.logger.debug("Outline has %d vertices", outline.PointCount())
+            self.logger.debug("Outline has %d vertices and %d holes", outline.PointCount(), poly.HoleCount(i))
 
             for pi in range(outline.PointCount()):
                 point = outline.CPoint(pi)
                 outline.SetPoint(pi, self._transform_point(point, center))
+            
+            for hi in range(poly.HoleCount(i)):
+                hole: pcbnew.SHAPE_LINE_CHAIN = poly.Hole(i, hi)
+                self.logger.debug("Hole has %d vertices", hole.PointCount())
+
+                for pi in range(hole.PointCount()):
+                    point = hole.CPoint(pi)
+                    hole.SetPoint(pi, self._transform_point(point, center))
 
     def _transform_shape(self,
                          shape: pcbnew.PCB_SHAPE,
